@@ -13,7 +13,7 @@ Get your Document Parser up and running in minutes with real document content ex
 
 ```bash
 # Clone the repository (if not already done)
-git clone <your-repo-url>
+git clone https://github.com/shreyescodes/doc_parser_updated/
 cd doc-parser
 
 # Create virtual environment (recommended)
