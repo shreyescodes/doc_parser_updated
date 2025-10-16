@@ -1,241 +1,260 @@
-# LP Document Parser
+# 🚀 Quick Start Guide - Document Parser
 
-A comprehensive document parsing system for Limited Partner (LP) fiduciary documents, including capital call notices and distribution notices. Built with FastAPI, PostgreSQL, and privacy-first AI processing.
+Get your Document Parser up and running in minutes with real document content extraction!
 
-## Features
+## Prerequisites
 
-- **Document Processing**: Advanced document parsing using Docling and OCR
-- **LP Document Classification**: Automatic classification of capital calls, distributions, and other LP documents
-- **Structured Data Extraction**: Intelligent extraction of financial data, dates, amounts, and fund information
-- **Privacy-First**: All processing happens locally - no data sent to external services
-- **Scalable Architecture**: Docker-based deployment with PostgreSQL, Redis, and MinIO
-- **Background Processing**: Celery-based task queue for document processing
-- **RESTful API**: Comprehensive API for document management and processing
+- **Python 3.11+**
+- **Git**
 
-## Tech Stack
+## Installation Steps
 
-- **Backend**: FastAPI (Python 3.11+)
-- **Database**: PostgreSQL with SQLAlchemy ORM
-- **Document Processing**: Docling + Tesseract OCR
-- **Message Queue**: Redis + Celery
-- **File Storage**: MinIO (S3-compatible)
-- **Deployment**: Docker + Docker Compose
-- **Reverse Proxy**: Nginx
+### 1. Setup Environment
 
-## Quick Start
-
-### Prerequisites
-
-- Docker and Docker Compose
-- Git
-
-### Installation
-
-1. Clone the repository:
 ```bash
-git clone <repository-url>
+# Clone the repository (if not already done)
+git clone <your-repo-url>
 cd doc-parser
+
+# Create virtual environment (recommended)
+python -m venv myenv
+myenv\Scripts\activate  # Windows
+# source myenv/bin/activate  # Linux/Mac
+
+# Install core dependencies
+pip install fastapi uvicorn python-multipart pydantic pydantic-settings PyPDF2
 ```
 
-2. Start the services:
+### 2. Start the Simple Application
+
 ```bash
-docker-compose up -d
+# Run the enhanced document parser
+python simple_app.py
 ```
 
-3. The API will be available at:
-- API: http://localhost:8000
-- API Documentation: http://localhost:8000/docs
-- MinIO Console: http://localhost:9001 (minioadmin/minioadmin)
+**✅ The application will start at http://localhost:8000**
 
-### Environment Configuration
+### 3. Access the Application
 
-Copy the environment template and configure:
+- **API Documentation**: http://localhost:8000/docs
+- **Alternative Docs**: http://localhost:8000/redoc
+- **Health Check**: http://localhost:8000/health
+
+**🎉 No authentication required for testing!**
+
+## 🚀 Quick Document Processing
+
+### Supported File Formats
+- **PDF Files** (`.pdf`) - Full text extraction and parsing
+- **Text Files** (`.txt`) - Direct text processing
+
+### Document Processing Commands
+
 ```bash
-cp config.py.example .env
-# Edit .env with your settings
-```
+# Option 1: Upload and process in one step (Recommended)
+curl -X POST "http://localhost:8000/process-file" \
+     -F "file=@your_document.pdf"
 
-## API Usage
-
-### Upload Document
-
-```bash
+# Option 2: Upload first, then process
 curl -X POST "http://localhost:8000/upload" \
-     -H "Content-Type: multipart/form-data" \
-     -F "file=@capital_call.pdf"
+     -F "file=@your_document.pdf"
+
+# Then process (use document_id from upload response)
+curl -X POST "http://localhost:8000/process/doc_20251016_043214?filename=your_document.pdf"
+
+# List all uploaded documents
+curl -X GET "http://localhost:8000/documents"
+
+# Get specific document details
+curl -X GET "http://localhost:8000/documents/doc_20251016_043214"
 ```
 
-### Process Document
+### Development Commands
 
 ```bash
-curl -X POST "http://localhost:8000/documents/1/process"
-```
+# Run with auto-reload
+python simple_app.py
 
-### Get Document Details
-
-```bash
-curl -X GET "http://localhost:8000/documents/1"
-```
-
-### Get Capital Call Details
-
-```bash
-curl -X GET "http://localhost:8000/documents/1/capital-call"
-```
-
-### Get Distribution Details
-
-```bash
-curl -X GET "http://localhost:8000/documents/1/distribution"
-```
-
-## Document Types Supported
-
-### Capital Call Notices
-- Call dates and due dates
-- Call amounts and percentages
-- Fund information and commitments
-- LP-specific contribution details
-- Payment instructions and wire transfer info
-
-### Distribution Notices
-- Distribution dates and amounts
-- Fund NAV and performance metrics
-- LP-specific distribution amounts
-- IRR and multiple calculations
-- Payment methods and instructions
-
-## Development
-
-### Local Development Setup
-
-1. Install dependencies:
-```bash
+# Install additional dependencies if needed
 pip install -r requirements.txt
 ```
 
-2. Install system dependencies:
-```bash
-# Ubuntu/Debian
-sudo apt-get install tesseract-ocr poppler-utils
+## 📊 What Gets Extracted
 
-# macOS
-brew install tesseract poppler
+Your document parser extracts **real information** from documents:
+
+### Extracted Data Types
+- **Contact Information**: Names, emails, phone numbers
+- **Dates**: Birth dates, employment dates, education dates  
+- **Skills**: Programming languages, technologies, tools
+- **Education**: Degrees, universities, certifications
+- **Experience**: Job titles, companies, work history
+- **Financial Data**: Dollar amounts, percentages
+- **Addresses**: Street addresses, locations
+- **Document Classification**: Resume, invoice, contract, report
+
+### Example JSON Response
+
+```json
+{
+  "document_id": "doc_20251016_043214",
+  "filename": "resume.pdf",
+  "file_size": 123456,
+  "extracted_data": {
+    "file_info": {
+      "filename": "resume.pdf",
+      "file_type": ".pdf",
+      "processed_at": "2025-10-16T04:32:14"
+    },
+    "extracted_text": "John Doe\nSoftware Engineer\nEmail: john@example.com...",
+    "document_type": "resume",
+    "confidence": 0.9,
+    "structured_data": {
+      "contact_info": {"name": "John Doe"},
+      "emails": ["john@example.com"],
+      "phones": ["(555) 123-4567"],
+      "skills": ["Python", "JavaScript", "React", "AWS"],
+      "education": ["Bachelor of Computer Science"],
+      "experience": ["Software Engineer at Tech Corp"]
+    }
+  },
+  "processing_status": "completed"
+}
 ```
 
-3. Set up database:
-```bash
-# Start PostgreSQL
-docker run -d --name postgres -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres:15
+## Troubleshooting
 
-# Run migrations (when available)
-alembic upgrade head
+### Common Issues
+
+#### Missing Dependencies
+```bash
+# Install core dependencies
+pip install fastapi uvicorn python-multipart pydantic pydantic-settings PyPDF2
+
+# If you get compilation errors, try pre-compiled wheels
+pip install --only-binary=all PyPDF2
 ```
 
-4. Start Redis:
+#### Port Already in Use
 ```bash
-docker run -d --name redis -p 6379:6379 redis:7
+# Kill process on port 8000 (Windows)
+netstat -ano | findstr :8000
+taskkill /PID <PID_NUMBER> /F
+
+# Kill process on port 8000 (Linux/Mac)
+lsof -ti:8000 | xargs kill -9
+
+# Or use different port
+python simple_app.py  # Edit the port in the file
 ```
 
-5. Run the application:
+#### File Upload Issues
 ```bash
-uvicorn main:app --reload
+# Check if uploads directory exists
+mkdir uploads
+
+# Ensure file permissions
+chmod 755 uploads/  # Linux/Mac
 ```
 
-### Running Tests
-
+#### PDF Processing Errors
 ```bash
-pytest tests/
+# If PDF processing fails, try with a simple text file first
+echo "Test document content" > test.txt
+curl -X POST "http://localhost:8000/process-file" -F "file=@test.txt"
 ```
 
-### Code Formatting
+## 🎯 Quick Test
 
-```bash
-black .
-isort .
+### Test with Your Resume
+
+1. **Start the application:**
+   ```bash
+   python simple_app.py
+   ```
+
+2. **Upload your resume:**
+   ```bash
+   curl -X POST "http://localhost:8000/process-file" \
+        -F "file=@your_resume.pdf"
+   ```
+
+3. **View results** in the JSON response or visit `http://localhost:8000/docs` for interactive testing!
+
+## 📈 Features
+
+### ✅ What's Working
+- **Real PDF text extraction** using PyPDF2
+- **Structured data parsing** (emails, phones, skills, etc.)
+- **Document classification** (resume, invoice, contract, report)
+- **JSON API responses** with extracted information
+- **No authentication required** for testing
+- **Interactive API documentation** at `/docs`
+
+### 🔧 Easy to Extend
+- Add new document types
+- Customize extraction patterns
+- Add more file format support
+- Integrate with databases
+- Add authentication
+
+## 🚀 Production Ready Features
+
+For production deployment, you can enhance the simple app with:
+
+### Database Integration
+```python
+# Add to simple_app.py
+from sqlalchemy import create_engine, Column, Integer, String, Text
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
+
+class Document(Base):
+    __tablename__ = "documents"
+    id = Column(Integer, primary_key=True)
+    filename = Column(String(255))
+    extracted_data = Column(Text)
 ```
 
-## Architecture
+### Authentication
+```python
+# Add JWT authentication
+from fastapi.security import HTTPBearer
+from jose import JWTError, jwt
 
-### Core Components
+security = HTTPBearer()
 
-1. **Document Processor**: Handles document parsing using Docling and OCR
-2. **LP Extractor**: Specialized extraction for LP document types
-3. **Database Models**: PostgreSQL models for documents, users, and extracted data
-4. **API Endpoints**: RESTful API for document management
-5. **Background Tasks**: Celery workers for async processing
-6. **File Storage**: MinIO for document and processed data storage
+@app.post("/upload")
+async def upload_document(file: UploadFile = File(...), token: str = Depends(security)):
+    # Verify token and process
+```
 
-### Processing Pipeline
+### Advanced Processing
+```python
+# Add OCR support
+import pytesseract
+from PIL import Image
 
-1. **Upload**: Document uploaded via API
-2. **Queue**: Document queued for background processing
-3. **OCR**: Text extraction using Docling and Tesseract
-4. **Classification**: Document type classification
-5. **Extraction**: Structured data extraction based on document type
-6. **Storage**: Results stored in PostgreSQL and MinIO
+def extract_text_from_image(image_path):
+    return pytesseract.image_to_string(Image.open(image_path))
+```
 
-## Security
+## 📚 API Endpoints
 
-- **Authentication**: JWT-based authentication (to be implemented)
-- **Authorization**: Role-based access control
-- **Data Encryption**: TLS for data in transit, database encryption for data at rest
-- **Privacy**: All processing happens locally - no external API calls
-- **Audit Logging**: Comprehensive logging of all operations
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/` | GET | API information |
+| `/health` | GET | Health check |
+| `/upload` | POST | Upload document |
+| `/process/{doc_id}` | POST | Process uploaded document |
+| `/process-file` | POST | Upload and process in one step |
+| `/documents` | GET | List all documents |
+| `/documents/{doc_id}` | GET | Get document details |
+| `/docs` | GET | Interactive API documentation |
 
-## Monitoring
+## 🎉 Ready to Use!
 
-- **Health Checks**: Built-in health check endpoints
-- **Logging**: Structured logging with configurable levels
-- **Metrics**: Processing time and success rate tracking
-- **Error Handling**: Comprehensive error handling and reporting
+Your document parser is now ready to extract real information from PDFs and text files. Start with `python simple_app.py` and test with your documents!
 
-## Scaling
-
-### Horizontal Scaling
-- Multiple API instances behind load balancer
-- Separate worker nodes for document processing
-- Database clustering for high availability
-- Distributed file storage with MinIO clustering
-
-### Performance Optimization
-- Async processing with Celery
-- Database connection pooling
-- File caching and compression
-- Background task optimization
-
-## Production Deployment
-
-### Security Checklist
-- [ ] Change default passwords and secrets
-- [ ] Configure SSL/TLS certificates
-- [ ] Set up firewall rules
-- [ ] Enable audit logging
-- [ ] Configure backup strategies
-- [ ] Set up monitoring and alerting
-
-### Environment Variables
-- `SECRET_KEY`: Application secret key
-- `DATABASE_URL`: PostgreSQL connection string
-- `REDIS_URL`: Redis connection string
-- `MINIO_ACCESS_KEY`: MinIO access key
-- `MINIO_SECRET_KEY`: MinIO secret key
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
-
-## License
-
-MIT License - see LICENSE file for details.
-
-## Support
-
-For support and questions:
-- Create an issue in the repository
-- Check the documentation at `/docs`
-- Review the API documentation at `/redoc`
+**Happy Document Parsing!** 📄✨
